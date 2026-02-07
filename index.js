@@ -1,60 +1,44 @@
-// 这里的路径改成了绝对路径，更加稳健
-import { extension_settings } from "/scripts/extensions.js";
-import { saveSettingsDebounced } from "/scripts/script.js";
-import { popup_call } from "/scripts/popup.js";
+import { extension_settings } from "../../../extensions.js"; // 相对路径兼容性最好
 
-const extensionName = "yuzu-manager";
-
+// 简单的 UI 构建
 function createYuzuUI() {
-    const container = document.createElement("div");
-    container.innerHTML = `
-        <div class="yuzu-box" style="padding: 10px; border: 1px solid #666; background: rgba(0, 0, 0, 0.3); margin-top: 10px;">
-            <h3 style="color: pink;">🍊 柚子·全能管家</h3>
-            <p style="font-size: 0.9em;">如果看到这个界面，说明修复成功啦！♡</p>
-            <hr>
-            <h4>📥 插件安装</h4>
-            <textarea id="yuzu_plugin_urls" rows="3" class="text_pole" style="width:100%" placeholder="输入GitHub链接..."></textarea>
-            <button id="yuzu_btn_install" class="menu_button" style="width:100%; margin-top:5px">✨ 安装</button>
-            <div id="yuzu_install_log" style="font-size:0.8em; margin-top:5px"></div>
-            <hr>
-            <h4>📦 备份</h4>
-            <button id="yuzu_btn_backup" class="menu_button" style="width:100%">💾 下载备份 (.zip)</button>
+    const div = document.createElement("div");
+    div.innerHTML = `
+        <div style="padding:10px; background:rgba(0,0,0,0.3); border:1px solid #666; margin-top:10px;">
+            <h3>🍊 柚子管家 (Yuzu Manager)</h3>
+            <p>恢复正常啦！♡</p>
+            <textarea id="yuzu_urls" class="text_pole" rows="3" style="width:100%" placeholder="GitHub Links..."></textarea>
+            <button id="yuzu_btn" class="menu_button" style="width:100%; margin-top:5px">Install</button>
+            <div id="yuzu_log" style="font-size:0.8em"></div>
+            <button id="yuzu_bkp" class="menu_button" style="width:100%; margin-top:10px">Backup (.zip)</button>
         </div>
     `;
-
-    const btnInstall = container.querySelector("#yuzu_btn_install");
-    const logArea = container.querySelector("#yuzu_install_log");
-    const inputArea = container.querySelector("#yuzu_plugin_urls");
-    const btnBackup = container.querySelector("#yuzu_btn_backup");
-
-    btnInstall.addEventListener("click", async () => {
-        const urls = inputArea.value.split('\n').filter(l => l.includes('http'));
-        if (!urls.length) return toastr.warning("没有链接喵！");
-        btnInstall.innerText = "运行中...";
+    
+    div.querySelector("#yuzu_btn").addEventListener("click", async () => {
+        const btn = div.querySelector("#yuzu_btn");
+        const urls = div.querySelector("#yuzu_urls").value.split('\n').filter(x=>x.includes('http'));
+        if(!urls.length) return;
+        btn.innerText = "Working...";
         try {
             const res = await fetch('/api/yuzu/install-plugins', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({urls})
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({urls})
             });
-            const data = await res.json();
-            logArea.innerHTML = data.logs ? data.logs.join('<br>') : data.msg;
-        } catch(e) { logArea.innerText = "错误: " + e; }
-        btnInstall.innerText = "✨ 安装";
+            const d = await res.json();
+            div.querySelector("#yuzu_log").innerHTML = d.logs.join('<br>');
+        } catch(e) { div.querySelector("#yuzu_log").innerText = "Error: " + e; }
+        btn.innerText = "Install";
     });
 
-    btnBackup.addEventListener("click", () => {
-        window.open("/api/yuzu/backup", "_blank");
-    });
-
-    return container;
+    div.querySelector("#yuzu_bkp").addEventListener("click", () => window.open("/api/yuzu/backup", "_blank"));
+    
+    return div;
 }
 
 jQuery(async () => {
-    // 再次强调，这里必须用 ["yuzu-manager"]
+    // 🔑 必须和 manifest 的 id 一致！
     extension_settings["yuzu-manager"] = {
-        render: (container) => {
-            $(container).append(createYuzuUI());
-        }
+        render: (container) => $(container).append(createYuzuUI())
     };
 });
