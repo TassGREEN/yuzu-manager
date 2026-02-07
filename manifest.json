@@ -2,10 +2,10 @@
     "name": "Yuzu Manager",
     "display_name": "柚子·全能管家",
     "id": "yuzu-manager",
-    "version": "1.0.1",
-    "author": "Yuzu & Master",
-    "description": "一键备份与批量插件下载",
+    "version": "1.0.2",
+    "author": "Yuzu",
+    "description": "Backup and Plugin Manager",
     "type": "server_extension",
-    "js": "index.js", 
+    "js": "index.js",
     "loading_order": 1
 }
