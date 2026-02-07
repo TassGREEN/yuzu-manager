@@ -1,0 +1,10 @@
+{
+    "name": "Yuzu Manager",
+    "display_name": "柚子·全能管家",
+    "id": "yuzu-manager",
+    "version": "1.0.0",
+    "author": "Yuzu & Master",
+    "description": "一键备份/恢复数据，批量下载插件。主人的贴心小棉袄插件版！",
+    "type": "server_extension",
+    "loading_order": 1
+}
